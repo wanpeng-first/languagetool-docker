@@ -35,9 +35,10 @@ jobs:
         with:
           images: ppyasdf/languagetool-docker
           flavor: |
-            latest=auto
+            latest=true
           tags: |
             type=ref,event=branch
+            type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
       -
