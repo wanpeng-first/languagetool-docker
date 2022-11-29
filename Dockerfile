@@ -17,7 +17,7 @@ RUN wget https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
 
 # RUN wget https://languagetool.org/download/ngram-lang-detect/model_ml50_new.zip
 
-#v5.8
+#v5.9
 FROM erikvl87/languagetool
 
 COPY --chown=languagetool --from=ftbuild /fasttext .
