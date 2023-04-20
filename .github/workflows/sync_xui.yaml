@@ -1,0 +1,53 @@
+name: Sync Docker Image
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every hour, change this as needed
+
+jobs:
+  sync-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for new image
+        id: check-image
+        run: |
+          LATEST_UPDATE=$(curl -s "https://hub.docker.com/v2/repositories/enwaiax/x-ui/tags/alpha-zh" | jq -r '.last_updated')
+          echo "Latest update: ${LATEST_UPDATE}"
+          echo "LATEST_UPDATE=${LATEST_UPDATE}" >> $GITHUB_ENV
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/docker-image
+          key: docker-image-cache
+
+      - name: Retrieve last update from cache
+        id: retrieve-cache
+        run: |
+          mkdir -p ~/.cache/docker-image
+          if [ -f ~/.cache/docker-image/last-update ]; then
+            LAST_UPDATE=$(cat ~/.cache/docker-image/last-update)
+            echo "Last update (from cache): ${LAST_UPDATE}"
+            echo "LAST_UPDATE=${LAST_UPDATE}" >> $GITHUB_ENV
+          fi
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Pull the new image
+        if: env.LAST_UPDATE != env.LATEST_UPDATE
+        run: docker pull enwaiax/x-ui:alpha-zh
+
+      - name: Tag and push the new image
+        if: env.LAST_UPDATE != env.LATEST_UPDATE
+        run: |
+          docker tag enwaiax/x-ui:alpha-zh ppyasdf/x-ui:alpha-zh
+          docker push ppyasdf/x-ui:alpha-zh
+
+      - name: Update cache
+        if: env.LAST_UPDATE != env.LATEST_UPDATE
+        run: |
+          echo "${{ env.LATEST_UPDATE }}" > ~/.cache/docker-image/last-update
