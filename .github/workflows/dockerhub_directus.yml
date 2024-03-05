@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Image CI for directus
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
     tags:
       - 'v*'
     paths:
-      - 'Dockerfile'
+      - 'directus/**'
   pull_request:
     branches: [ main ]
     paths:
-      - 'Dockerfile'
+      - 'directus/**'
 
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ppyasdf/languagetool-docker
+          images: ppyasdf/directus
           flavor: |
             latest=true
           tags: |
